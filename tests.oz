@@ -105,7 +105,7 @@ fun {ParseWord Words Tree}
         end
     [] Word|Wr then %If several words left
         if {CheckLabel {Arity Tree} Word} then %same as above
-            local T = {UpdateOccProb Tree Word} in
+            local T = {UpdateOccProb Word Tree} in
                 {Record.adjoinAt T Word {ParseWord Wr T.Word}}
                 %Returns Tree with updated Word subtree
             end
@@ -120,8 +120,6 @@ fun {ParseWord Words Tree}
 end
 
 fun {UpdateOccProb Word Tree}
-    {Browse Word}
-    {Browse Tree}
     local 
         TempT = {Record.adjoinAt Tree Word {Record.adjoinAt Tree.Word '_occ' Tree.Word.'_occ'+1.0}}
         FinalT= {Record.adjoinAt TempT Word {Record.adjoinAt TempT.Word '_prob' TempT.Word.'_occ'/TempT.'_occ'}}
@@ -131,7 +129,8 @@ fun {UpdateOccProb Word Tree}
 end
 
 fun {ParseTweet Tweet Words NGram N}
-    case Tweet of nil then NGram %we looked at the whole file, return NGram
+    case Tweet of nil then 
+        {ParseWord Words NGram} %we looked at the whole file, return NGram updated w/ last 3 words
     [] T|Tr then
         if {List.length Words} < N then %Get new words from the tweet until we have as much as the degree of the N-gram
             {ParseTweet Tr {List.append Words T|nil} NGram N}
